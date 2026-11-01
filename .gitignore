@@ -1,0 +1,40 @@
+# Build outputs
+**/target/
+**/build/
+**/dist/
+**/coverage/
+**/node_modules/
+**/.angular/
+**/.gradle/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+secrets/
+*.local.yml
+*.local.yaml
+*.local.properties
+docker-compose.override.yml
+
+# Private keys and local certificates
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# IDE and operating system files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp

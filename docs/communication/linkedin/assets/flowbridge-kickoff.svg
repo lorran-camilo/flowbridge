@@ -1,0 +1,96 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="627" viewBox="0 0 1200 627" role="img" aria-labelledby="svg-title svg-desc">
+  <title id="svg-title">FlowBridge — início de um projeto de aprendizado</title>
+  <desc id="svg-desc">Peça horizontal em azul-marinho e ciano. Apresenta FlowBridge e o subtítulo Order Integration and Automation Platform. À direita, um diagrama conceitual planejado liga API, broker RabbitMQ, worker, PostgreSQL e integrações simuladas de frete e faturamento. Java, Spring Boot e Angular aparecem identificados como tecnologias planejadas.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071426"/>
+      <stop offset="0.55" stop-color="#0B1E36"/>
+      <stop offset="1" stop-color="#102B48"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#35D6E8"/>
+      <stop offset="1" stop-color="#4D8DFF"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#A9C4D8" opacity="0.14"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#35D6E8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="627" fill="url(#background)"/>
+  <rect width="1200" height="627" fill="url(#dots)"/>
+  <circle cx="1100" cy="55" r="210" fill="#35D6E8" opacity="0.045"/>
+  <circle cx="560" cy="600" r="180" fill="#4D8DFF" opacity="0.055"/>
+
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <rect x="60" y="54" width="8" height="20" rx="4" fill="url(#accent)"/>
+    <text x="82" y="69" fill="#A9C4D8" font-size="14" font-weight="700" letter-spacing="2.2">PROJETO PESSOAL • JORNADA DE APRENDIZADO</text>
+
+    <text x="58" y="170" fill="#F5FAFF" font-size="66" font-weight="750" letter-spacing="-2.4">FlowBridge</text>
+    <rect x="62" y="191" width="88" height="5" rx="2.5" fill="url(#accent)"/>
+    <text x="62" y="235" fill="#D9EAF5" font-size="22" font-weight="500">Order Integration &amp;</text>
+    <text x="62" y="265" fill="#D9EAF5" font-size="22" font-weight="500">Automation Platform</text>
+    <text x="62" y="311" fill="#35D6E8" font-size="19" font-weight="650" letter-spacing="0.4">Building, Learning &amp; Engineering</text>
+
+    <rect x="62" y="346" width="238" height="34" rx="17" fill="#143452" stroke="#35D6E8" stroke-opacity="0.65"/>
+    <circle cx="81" cy="363" r="5" fill="#35D6E8"/>
+    <text x="96" y="368" fill="#DDFBFF" font-size="13" font-weight="750" letter-spacing="1.3">EM PLANEJAMENTO</text>
+
+    <text x="62" y="425" fill="#A9C4D8" font-size="13" font-weight="750" letter-spacing="1.7">TECNOLOGIAS PLANEJADAS</text>
+    <g font-size="14" font-weight="650" text-anchor="middle">
+      <rect x="62" y="442" width="83" height="38" rx="19" fill="#122C49" stroke="#3B5873"/>
+      <text x="103.5" y="466" fill="#F5FAFF">Java</text>
+      <rect x="154" y="442" width="157" height="38" rx="19" fill="#122C49" stroke="#3B5873"/>
+      <text x="232.5" y="466" fill="#F5FAFF">Spring Boot</text>
+      <rect x="320" y="442" width="102" height="38" rx="19" fill="#122C49" stroke="#3B5873"/>
+      <text x="371" y="466" fill="#F5FAFF">Angular</text>
+    </g>
+
+    <line x1="62" y1="520" x2="420" y2="520" stroke="#55718B" stroke-opacity="0.55"/>
+    <text x="62" y="548" fill="#A9C4D8" font-size="14">Planejar • estudar • construir com intenção</text>
+
+    <rect x="584" y="48" width="556" height="530" rx="24" fill="#091A2D" fill-opacity="0.75" stroke="#284766" stroke-width="1.5"/>
+    <text x="620" y="88" fill="#A9C4D8" font-size="13" font-weight="750" letter-spacing="1.9">ARQUITETURA CONCEITUAL</text>
+    <text x="1104" y="88" fill="#35D6E8" font-size="13" font-weight="700" text-anchor="end" letter-spacing="1.2">PLANEJADA</text>
+
+    <!-- Conexões ilustrativas: API → broker → worker → persistência/integrações -->
+    <path d="M 824 171 L 885 171" fill="none" stroke="#35D6E8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M 990 207 L 990 277" fill="none" stroke="#35D6E8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M 885 333 L 824 333" fill="none" stroke="#35D6E8" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <path d="M 990 369 L 990 414" fill="none" stroke="#35D6E8" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <g>
+      <rect x="638" y="135" width="186" height="72" rx="14" fill="#102B48" stroke="#35D6E8" stroke-opacity="0.8" stroke-width="1.5"/>
+      <circle cx="662" cy="171" r="8" fill="#35D6E8"/>
+      <text x="680" y="166" fill="#F5FAFF" font-size="16" font-weight="700">API</text>
+      <text x="680" y="187" fill="#A9C4D8" font-size="13">Spring Boot</text>
+
+      <rect x="885" y="135" width="210" height="72" rx="14" fill="#102B48" stroke="#4D8DFF" stroke-opacity="0.8" stroke-width="1.5"/>
+      <circle cx="910" cy="171" r="8" fill="#4D8DFF"/>
+      <text x="929" y="166" fill="#F5FAFF" font-size="16" font-weight="700">Broker</text>
+      <text x="929" y="187" fill="#A9C4D8" font-size="13">Eventos e filas</text>
+
+      <rect x="885" y="297" width="210" height="72" rx="14" fill="#102B48" stroke="#35D6E8" stroke-opacity="0.8" stroke-width="1.5"/>
+      <circle cx="910" cy="333" r="8" fill="#35D6E8"/>
+      <text x="929" y="328" fill="#F5FAFF" font-size="16" font-weight="700">Worker</text>
+      <text x="929" y="349" fill="#A9C4D8" font-size="13">Processamento assíncrono</text>
+
+      <rect x="638" y="297" width="186" height="72" rx="14" fill="#102B48" stroke="#4D8DFF" stroke-opacity="0.8" stroke-width="1.5"/>
+      <ellipse cx="662" cy="323" rx="9" ry="4" fill="none" stroke="#4D8DFF" stroke-width="2"/>
+      <path d="M 653 323 L 653 343 C 653 348 671 348 671 343 L 671 323" fill="none" stroke="#4D8DFF" stroke-width="2"/>
+      <ellipse cx="662" cy="343" rx="9" ry="4" fill="none" stroke="#4D8DFF" stroke-width="2"/>
+      <text x="680" y="328" fill="#F5FAFF" font-size="16" font-weight="700">Banco</text>
+      <text x="680" y="349" fill="#A9C4D8" font-size="13">PostgreSQL</text>
+
+      <rect x="885" y="414" width="210" height="72" rx="14" fill="#102B48" stroke="#4D8DFF" stroke-opacity="0.8" stroke-width="1.5"/>
+      <circle cx="910" cy="450" r="8" fill="#4D8DFF"/>
+      <text x="929" y="445" fill="#F5FAFF" font-size="14" font-weight="700">Integrações simuladas</text>
+      <text x="929" y="466" fill="#A9C4D8" font-size="13">Frete e faturamento</text>
+    </g>
+
+    <text x="638" y="530" fill="#8FAFC7" font-size="13">Diagrama ilustrativo • componentes ainda não implementados</text>
+  </g>
+</svg>
+
