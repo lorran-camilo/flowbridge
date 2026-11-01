@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-projects:
+    name: Detect implemented modules
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.detect.outputs.backend }}
+      worker: ${{ steps.detect.outputs.worker }}
+      frontend: ${{ steps.detect.outputs.frontend }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Detect build descriptors
+        id: detect
+        shell: bash
+        run: |
+          if [[ -f backend/pom.xml ]]; then
+            echo 'backend=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'backend=false' >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -f worker/pom.xml ]]; then
+            echo 'worker=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'worker=false' >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -f frontend/package.json ]]; then
+            echo 'frontend=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'frontend=false' >> "$GITHUB_OUTPUT"
+          fi
+
+  backend:
+    name: Backend build and tests
+    needs: detect-projects
+    if: needs.detect-projects.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Java
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Verify backend
+        working-directory: backend
+        run: bash ./mvnw --batch-mode verify
+
+  worker:
+    name: Worker build and tests
+    needs: detect-projects
+    if: needs.detect-projects.outputs.worker == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Java
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: worker/pom.xml
+      - name: Verify worker
+        working-directory: worker
+        run: bash ../backend/mvnw --batch-mode verify
+
+  frontend:
+    name: Frontend build and tests
+    needs: detect-projects
+    if: needs.detect-projects.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npm test -- --watch=false
+      - name: Run frontend lint when configured
+        working-directory: frontend
+        run: npm run lint --if-present
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
