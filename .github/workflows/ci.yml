@@ -16,7 +16,7 @@ concurrency:
 jobs:
   detect-projects:
     name: Detect implemented modules
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       backend: ${{ steps.detect.outputs.backend }}
       worker: ${{ steps.detect.outputs.worker }}
@@ -50,7 +50,7 @@ jobs:
     name: Backend build and tests
     needs: detect-projects
     if: needs.detect-projects.outputs.backend == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -61,15 +61,14 @@ jobs:
           java-version: '21'
           cache: maven
           cache-dependency-path: backend/pom.xml
-      - name: Verify backend
-        working-directory: backend
-        run: bash ./mvnw --batch-mode verify
+      - name: Verify backend with the shared root wrapper
+        run: bash ./mvnw --batch-mode -f backend/pom.xml verify
 
   worker:
     name: Worker build and tests
     needs: detect-projects
     if: needs.detect-projects.outputs.worker == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -80,15 +79,14 @@ jobs:
           java-version: '21'
           cache: maven
           cache-dependency-path: worker/pom.xml
-      - name: Verify worker
-        working-directory: worker
-        run: bash ../backend/mvnw --batch-mode verify
+      - name: Verify worker with the shared root wrapper
+        run: bash ./mvnw --batch-mode -f worker/pom.xml verify
 
   frontend:
     name: Frontend build and tests
     needs: detect-projects
     if: needs.detect-projects.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -103,7 +101,7 @@ jobs:
         run: npm ci
       - name: Run frontend tests
         working-directory: frontend
-        run: npm test -- --watch=false
+        run: npm test -- --no-watch --no-progress
       - name: Run frontend lint when configured
         working-directory: frontend
         run: npm run lint --if-present
