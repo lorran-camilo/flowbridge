@@ -10,7 +10,7 @@ O status abaixo descreve planejamento editorial. Nada na tabela afirma que uma f
 
 | Momento sugerido | Assuntos que podem formar um post | Evidência necessária antes de escrever | Estado editorial |
 |---|---|---|---|
-| Kickoff / Fase 0 | Objetivo do portfólio; aprendizado como parte do projeto; uso transparente de IA; escopo ainda em planejamento. | Escopo aprovado ou declarar que o planejamento está em andamento. Não alegar implementação. | Rascunho criado em `01-project-kickoff.md`; aguardando revisão. |
+| Kickoff / Fase 0 | Objetivo do portfólio; aprendizado como parte do projeto; uso transparente de IA; escopo ainda em planejamento; repositório público. | Escopo aprovado ou declarar que o planejamento está em andamento. Não alegar implementação. | Rascunho atualizado em `01-project-kickoff.md`; aguardando revisão e aprovação do proprietário. |
 | Fechamento da Fase 0 | Planejamento e arquitetura; monólito modular + worker; contratos; decisões, alternativas e questões ainda abertas. | ADRs/requisitos revisados e decisões aprovadas; explicar que diagramas são propostas quando ainda pendentes. | Planejado; criar post apenas após validação da fase. |
 | Fase 1 | Java e Spring Boot; estrutura do backend; Maven Wrapper; Angular CLI; Docker/Compose, redes, volumes e health checks. | Builds/comandos reais e serviços funcionando; diferenciar esqueleto de funcionalidades. | Planejado; possível combinar tooling e ambiente em uma história. |
 | Fase 2 | Backend modular e API REST; modelo de pedido; SQL/PostgreSQL e migrations; validação e contrato HTTP. | Endpoint realmente implementado, migrations/testes executados e resposta real revisada. | Planejado; separar TDD se houver um aprendizado específico. |

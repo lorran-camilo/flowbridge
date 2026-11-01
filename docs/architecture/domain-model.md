@@ -1,15 +1,19 @@
 # FlowBridge — modelo de domínio
 
-**Estado:** proposta da Fase 0, alinhada à visão do guia principal.
+**Estado:** modelo conceitual aprovado na Fase 0; implementação ainda não iniciada.
 
 ## Conceitos do domínio
 
 - **Order:** pedido aceito pela API e unidade principal de consulta. Possui estado global e itens.
+- **Integration client:** identidade `client_id` que criou o pedido e delimita todo acesso de máquina.
 - **OrderItem:** linha do pedido com SKU, quantidade e preço unitário; total é derivado e usa decimal exato.
 - **Processing generation:** rodada completa de processamento. A primeira começa em 1; reprocessamento autorizado cria outra geração, sem apagar a anterior.
 - **Processing attempt:** execução de uma rodada pelo worker. Uma redelivery pode criar uma tentativa nova, mas não deve repetir uma integração já concluída.
 - **Integration execution:** chamada individual ao adaptador de frete ou faturamento com resultado, duração e falha.
+- **Integration type:** identificador estável do tipo lógico do adaptador (`FREIGHT` ou `BILLING`); não há entidade de integração configurável no modelo atual.
+- **Processing step:** etapa nomeada e versionada dentro de uma geração, com estado, hash de entradas e dependências explícitas.
 - **Outbox event:** intenção persistida de publicar evento após commit do pedido.
+- **Integration type:** enum lógico `FREIGHT` ou `BILLING` que identifica qual adaptador executou uma chamada; não existe entidade configurável de integração neste modelo.
 - **Idempotency record:** associação durável de chave do cliente, hash do pedido enviado e resposta/recurso criado.
 - **Reprocess request:** ação operacional autorizada e auditável que inicia nova geração.
 
@@ -37,16 +41,17 @@ O status do pedido é uma projeção do fluxo global, não a cópia do último s
 7. Reentrega de evento não pode duplicar efeito de negócio. Chaves de deduplicação devem identificar evento, consumidor, geração e integração relevante.
 8. Uma resposta HTTP de criação não significa que freight/billing terminaram; `RECEIVED`/`PROCESSING` comunica consistência eventual.
 
-## Sequência proposta de processamento
+## Etapas e dependências do processamento
 
-O guia não especifica se frete e faturamento são sequenciais ou paralelos. Para primeira versão didática, recomenda-se executar em sequência (frete e depois faturamento), com gravação de cada execução. Isso torna falhas parciais e reprocessamento mais fáceis de explicar, mas pode ser alterado apenas após decisão. O status `COMPLETED` exige todas as etapas obrigatórias; essa lista deve ser confirmada.
+As etapas iniciais são `FREIGHT` e `BILLING`, mas a especificação não determina se há dependência entre elas. Na Fase 6, o grafo acíclico e versionado declarará explicitamente cada aresta; ordem de execução não implica dependência. `COMPLETED` exige todas as etapas obrigatórias válidas. Cada etapa guarda versão da regra e hash das entradas. Ao reprocessar, o sistema começa na etapa falha e seleciona seus descendentes; preserva etapa concluída apenas se resultado, versão/hash e pré-requisitos ainda forem válidos. Caso contrário, refaz a etapa e descendentes. A escolha das arestas será registrada e testada antes do workflow executável.
 
-## Questões de negócio abertas
+## Decisões registradas e limites
 
-- Quais campos mínimos permitem simular frete? Endereço é desnecessário até ser explicitamente justificado.
-- Moeda é uma por pedido? A proposta é uma moeda comum para todas as linhas, sem conversão cambial.
-- Qual etapa falha se a quantidade/SKU for reconhecida como inválida pelo adaptador simulado?
-- Reprocessamento repete todas as integrações ou apenas a falha? Recomendação inicial: fluxo completo com dedupe por etapa já concluída, a confirmar.
-- Qual status manter se uma etapa termina e outra é permanentemente falha? Recomendação: `FAILED` global e status individual por integração.
+- Frete usa zonas sintéticas de origem/destino e peso total em gramas; endereço real não é coletado.
+- A representação OpenAPI da moeda, limites técnicos e lista de zonas permitidas será consolidada antes de concluir os schemas de entrada; nenhuma regra adicional de negócio está aprovada.
+- O comportamento exato dos adaptadores para dados inválidos será definido na implementação de cada adaptador, respeitando os campos e validações do contrato aprovado.
+- Reprocessamento exige motivo e nova geração/evento; histórico anterior é preservado.
+- Uma etapa permanente falha deixa pedido global `FAILED`, com estado individual por etapa/integração.
+- `externalReference` continua opcional e sem unicidade aprovada. Retenção de timeline/Outbox publicada/DLQ e alterações manuais do pedido permanecem fora do contrato inicial.
 
 O modelo relacional, constraints e índices ficam em [data-model.md](data-model.md); as mensagens ficam em [event-contracts.md](event-contracts.md).

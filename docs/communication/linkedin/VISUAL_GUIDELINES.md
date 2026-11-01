@@ -24,6 +24,7 @@
 - **Broker:** nó/cápsula identificada como `RabbitMQ` ou `Broker de mensagens`.
 - **Worker:** retângulo identificado como `Worker`.
 - **Banco:** cilindro ou forma equivalente identificada como `PostgreSQL`/`Banco`.
+- **Outbox:** o pedido e o evento Outbox devem aparecer dentro de uma mesma fronteira de transação no PostgreSQL; a seta de publicação sai do Outbox Publisher após o commit e segue para RabbitMQ. Não desenhar publicação direta da API como fluxo final confiável.
 - **Integrações externas:** grupo com nome “Frete”/“Faturamento simulados” ou “Integrações externas”; indicar explicitamente quando for conceitual.
 - **Tecnologias planejadas:** listar como texto, por exemplo “Java • Spring Boot • Angular — planejadas”. Evitar logos oficiais sem necessidade.
 

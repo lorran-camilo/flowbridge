@@ -1,17 +1,17 @@
 # FlowBridge — visão geral da arquitetura
 
-**Estado:** proposta da Fase 0, aguardando revisão do proprietário  
+**Estado:** arquitetura aprovada na Fase 0; implementação ainda não iniciada
 **Referência funcional:** [`FLOWBRIDGE_GUIA_DE_DESENVOLVIMENTO_CLAUDE_CODE_REENVIO.md`](../../FLOWBRIDGE_GUIA_DE_DESENVOLVIMENTO_CLAUDE_CODE_REENVIO.md)  
 **Data de verificação da stack:** 1 nov. 2026
 
-Este documento transforma a arquitetura descrita no guia em uma proposta compreensível e revisável. Onde a especificação não determina um comportamento, a escolha aparece identificada como proposta ou pergunta em aberto. A documentação não aprova mudanças de escopo.
+Este documento consolida as decisões aprovadas pelo proprietário na Fase 0. Detalhes ainda não decididos aparecem como limites explícitos; esta documentação não altera a especificação principal nem inicia implementação.
 
 ## Resumo
 
 - **Frontend:** SPA Angular. Usa OpenID Connect para autenticar pessoas no Keycloak e envia access tokens à API.
 - **API:** aplicação Spring Boot organizada como monólito modular. Recebe pedidos, aplica validações e idempotência, grava dados transacionais e expõe consultas e ações autorizadas.
 - **Persistência:** PostgreSQL é a fonte de verdade para pedidos, estado, histórico, Outbox e idempotência.
-- **Mensageria:** RabbitMQ transporta eventos duráveis entre a API/publicador e o worker.
+- **Mensageria:** RabbitMQ transporta eventos duráveis do Outbox Publisher independente ao worker.
 - **Worker:** processo Spring Boot separado que lê eventos, executa adaptadores simulados de frete e faturamento e registra resultados no PostgreSQL.
 - **Identidade:** Keycloak emite tokens OIDC/OAuth 2.0; a API valida e autoriza cada operação. A SPA não é a autoridade de segurança.
 
@@ -26,18 +26,19 @@ flowchart LR
   Browser --> KC
   Client[Cliente de integração] -->|Client Credentials| KC
   Client -->|access token + Idempotency-Key| API
-  API -->|transação: pedido + itens + idempotência + evento| PG[(PostgreSQL)]
-  PG -->|eventos pendentes| Publisher[Publicador Outbox]
+  API -->|uma transação: pedido + itens + idempotência + evento Outbox; commit| PG[(PostgreSQL)]
+  Publisher[Outbox Publisher] -->|consulta e reivindica eventos pendentes após commit| PG
   Publisher -->|publisher confirm| Exchange{{RabbitMQ\nexchange de eventos}}
+  Publisher -->|marca PUBLISHED após confirmação| PG
   Exchange --> WorkQ[[Fila de trabalho]]
   WorkQ --> Worker[Worker Spring Boot]
-  Worker -->|consulta pedido e grava tentativas/histórico| PG
+  Worker -->|lê pedido; grava estado de processamento/histórico| PG
   Worker --> Freight[Adaptador de frete simulado]
   Worker --> Billing[Adaptador de faturamento simulado]
   Worker --> RetryQ[[Filas de retry com atraso]]
   RetryQ --> WorkQ
   WorkQ -->|falha permanente / limite excedido| DLQ[[Dead-letter queue]]
-  KC -.->|discovery / JWKS público, cacheável| API
+  KC -.->|discovery / JWKS; issuer keycloak.flowbridge.test| API
 ```
 
 ### O que cada comunicação significa
@@ -45,8 +46,8 @@ flowchart LR
 1. **Navegador ↔ Keycloak:** OIDC autentica a pessoa. A SPA é cliente público e usa PKCE; não guarda segredo de cliente.
 2. **Navegador/cliente ↔ API:** o bearer access token identifica o principal e suas permissões. O backend valida localmente assinatura, `iss`, validade e `aud` usando metadados/chaves públicas descobertos no issuer (com cache/rotação); verifica autorização no endpoint. Não chama o Keycloak em cada requisição.
 3. **API ↔ PostgreSQL:** uma transação grava pedido, itens, registro da chave de idempotência e evento Outbox juntos. Se a transação falhar, nenhum desses elementos deve ser confirmado parcialmente.
-4. **Publicador ↔ RabbitMQ:** o publicador lê Outbox pendente e só considera publicação aceita depois de confirmação do broker e roteamento observado. Se cair entre confirmação e marcação no banco, pode publicar novamente.
-5. **RabbitMQ ↔ worker:** o broker entrega pelo menos uma vez segundo a configuração e o worker confirma (ACK) depois de gravar o resultado durável. Entrega repetida precisa ser segura.
+4. **Outbox Publisher ↔ PostgreSQL/RabbitMQ:** a API não chama o publisher. Após o commit da transação de pedido e Outbox, o processo independente consulta/reivindica linhas pendentes na tabela Outbox com claim atômico e lease recuperável, publica no RabbitMQ e, após confirmação e roteamento observado, atualiza a linha sob o claim vigente. Se cair entre confirmação e marcação no banco, pode publicar novamente com o mesmo `eventId`.
+5. **RabbitMQ ↔ worker:** o broker entrega pelo menos uma vez segundo a configuração e o worker confirma (ACK) depois de gravar o resultado durável. Autenticação da conexão limita acesso ao broker, mas não valida o conteúdo: worker aplica allowlist de origem/routing key, valida schema/versão/propriedades/IDs e deduplica antes de executar efeitos. Entrega repetida precisa ser segura.
 6. **Worker ↔ PostgreSQL/adaptadores:** o worker muda o estado, registra tentativas e chama adaptadores simulados. A gravação no banco e o efeito de uma chamada externa não formam uma transação distribuída; a idempotência do adaptador é necessária.
 
 ### Conceitos para aprender
@@ -64,16 +65,24 @@ flowchart LR
 | `orders` | DTOs e endpoints de pedidos, regras de criação/consulta, entidades e estados do pedido. Não executa chamadas HTTP de integração dentro do controller. |
 | `processing` | Orquestra etapas, registra tentativas, aplica transições globais e coordena o tratamento de falhas. As regras de transição devem ser testáveis sem RabbitMQ. |
 | `integrations` | Contratos e adaptadores simulados para frete e faturamento; captura resultado, duração e erro. Não deve decidir permissões de usuário. |
-| `outbox` | Grava eventos transacionais, seleciona eventos pendentes, publica com confirmação e registra tentativas/resultado. |
+| `outbox` | API grava o evento transacional; um Outbox Publisher independente consulta/reivindica eventos pendentes após commit, publica com confirmação e registra o resultado. O endpoint HTTP não chama o publicador. |
 | `identity` | Mapeia claims, roles e scopes externos a authorities internas se esse código for necessário. Não implementa emissão, senha ou assinatura de tokens. |
 | `shared` | Somente elementos realmente transversais, como formato comum de erro, correlation ID e observabilidade. Evitar um depósito de classes sem dono. |
 | Worker `messaging` | Declara/configura consumo, desserializa e valida envelope, controla ACK/NACK e encaminha o caso de uso. |
 | Worker `processing` | Executa o fluxo de uma mensagem, registra tentativas e aplica idempotência por evento/geração. |
 | Worker `integrations` | Usa os mesmos contratos conceituais de integração; não deve duplicar regras de domínio da API. |
 
-### Limites entre aplicações
+### Acesso compartilhado ao PostgreSQL
 
-API e worker não chamam classes internas uma da outra: cooperam por evento versionado, banco compartilhado e regras de domínio documentadas. Compartilhar tabelas é uma decisão de escopo do guia, mas cria acoplamento de esquema; cada migration precisa ser compatível com ambos os processos. Recomenda-se que uma tabela tenha um dono lógico e que acessos do worker sejam os mínimos necessários. O desenho concreto de usuários/roles SQL fica para a Fase 1.
+API e worker não chamam classes internas uma da outra: cooperam por evento versionado, banco compartilhado e regras de domínio documentadas. O banco/schema é compartilhado, mas as credenciais são distintas. Um usuário dedicado aplica migrations; API e worker não têm DDL nem superuser. API grava pedido, itens, idempotência, Outbox e solicitações de reprocessamento; worker lê pedido/itens e grava tentativas, execuções, inbox, timeline e estado de processamento. Grants por tabela/operação e, quando adequado, por coluna são mínimos. A tabela de permissões fica no [ADR-001](../decisions/ADR-001-modular-monolith-and-worker.md); sua configuração é trabalho futuro da Fase 1.
+
+### Identidade e isolamento
+
+O hostname/issuer local é `http://keycloak.flowbridge.test:8080/realms/flowbridge`. O host resolve o domínio para `127.0.0.1`; a rede Docker usa o mesmo nome como alias do Keycloak. Navegador e API precisam obter o mesmo issuer; a API valida tokens. O worker não recebe tokens de usuário/client nem valida tokens OIDC: consome mensagens da infraestrutura RabbitMQ autenticada e usa controles próprios de envelope, deduplicação, estado e permissões restritas no PostgreSQL. Nomes DNS internos alternativos não podem aparecer no `iss`. Todos os pedidos de integração são escopados por `client_id`, também em leituras individuais por UUID. Pessoas com permissões operacionais têm acesso de acordo com suas roles; clients máquina não recebem acesso administrativo nem reprocessam.
+
+### Reprocessamento por dependência
+
+O worker mantém grafo explícito e versionado de etapas. Os nós iniciais são `FREIGHT` e `BILLING`; a especificação não determina se há aresta de dependência entre eles. Cada etapa registra estado, versão da regra e hash das entradas. Um reprocessamento inicia na etapa falha e inclui seus descendentes no grafo declarado; resultado bem-sucedido só é preservado quando regra, entradas e pré-requisitos continuam válidos. Uma etapa invalidada invalida seus descendentes. O motivo e ator ficam em auditoria, o evento recebe nova geração e ID, e os resultados anteriores não são apagados.
 
 ## Fluxo de pedido
 
@@ -89,14 +98,14 @@ sequenceDiagram
   participant I as Adaptadores simulados
   C->>K: obtém access token
   C->>A: POST /orders + token + Idempotency-Key
-  A->>K: valida issuer/JWKS e claims (via configuração Resource Server)
+  Note over A: valida localmente assinatura, issuer, audience e claims com JWKS/configuração Resource Server
   A->>D: transação Order + Items + IdempotencyRecord + OutboxEvent
   D-->>A: commit
   A-->>C: 201 Created + Location + estado RECEIVED
-  P->>D: reivindica Outbox pendente
+  P->>D: consulta/reivindica Outbox pendente após commit
   P->>R: publica OrderSubmitted.v1 (persistente)
   R-->>P: publisher confirm
-  P->>D: marca evento publicado
+  P->>D: marca evento publicado após confirm
   R->>W: entrega mensagem
   W->>D: inicia tentativa; RECEIVED → PROCESSING
   W->>I: consulta frete e solicita faturamento
@@ -104,6 +113,8 @@ sequenceDiagram
   W->>D: grava execuções e estado final
   W-->>R: ACK após persistência
 ```
+
+Para reprocessamento autorizado, a API valida role humana e pedido `FAILED`, exige motivo e grava uma requisição auditável com geração nova junto do evento Outbox; o Publisher envia esse evento após commit. Worker calcula as etapas a refazer pela relação de dependências e preserva os resultados ainda válidos.
 
 Se uma integração falhar temporariamente, o worker registra a tentativa e agenda uma entrega atrasada limitada. Se falhar permanentemente ou esgotar tentativas, registra `FAILED` e a mensagem segue para DLQ conforme a topologia escolhida. Um operador autorizado solicita reprocessamento; a API registra a ação e publica uma nova geração do processamento. A história antiga permanece.
 
@@ -126,8 +137,8 @@ Referências oficiais consultadas em **1 nov. 2026**. O patch indicado é a vers
 
 | Componente | Recomendação de base | Situação e compatibilidade | Alternativa / cuidado |
 |---|---|---|---|
-| Java | JDK 25 LTS | Oracle lista Java 25 como LTS. Spring Boot 4.1.2 aceita Java 17–27. | Java 21 LTS continua alternativa se plugin/test library ainda não suportar JDK 25; não escolher só por hábito. |
-| Spring Boot | 4.1.2 estável | Documentação oficial identifica 4.1.2 como estável; é compatível com Java 25 e Maven 3.x. | Spring Boot 3.5.16 permanece linha mantida e suporta Java 25; é uma opção conservadora se dependências necessárias não suportarem Boot 4. |
+| Java | JDK 21 LTS | Versão aprovada pelo proprietário; Spring Boot 4.1.2 aceita Java 17–27. | Validar starters/plugins na Fase 1; Java 25 não faz parte do baseline aprovado. |
+| Spring Boot | 4.1.2 estável | Versão aprovada; compatível com Java 21 e Maven 3.x. | Troca para linha 3.5 só com evidência de incompatibilidade e aprovação registrada. |
 | Maven | Maven Wrapper 3.10.0 | Versão estável recomendada pelo Apache em 1 nov. 2026; wrapper torna o build reprodutível. | Manter 3.9.16 se um plugin essencial falhar em 3.10; Maven 4 ainda RC, não usar como base. |
 | Angular | 22.x | Angular 22 está em suporte ativo na página oficial consultada. | Angular 21 está em LTS, útil como alternativa mais madura, mas tem menos tempo de suporte restante. |
 | Node.js | 24.22.2 LTS | Angular 22 aceita Node `^24.15.0`; Node 24 está em LTS. | Node 26 também é LTS e aparece na matriz Angular 22, mas Node 24 tem mais tempo de maturidade de ecossistema. Fixar patch via arquivo de versão. |
@@ -136,16 +147,14 @@ Referências oficiais consultadas em **1 nov. 2026**. O patch indicado é a vers
 | RabbitMQ | 4.4.0 (linha 4.4.x) | Release oficial 4.4.0 em 20 out. 2026; suporte comunitário previsto até jul. 2027. Usar imagem explícita com management. | É release muito recente; validar plugin Spring AMQP e Testcontainers. Se instabilidade aparecer, 4.3.6 ainda recebe suporte comunitário até jan. 2027, portanto a janela é curta. |
 | Keycloak | 26.8.1 (linha 26.8.x) | Patch anunciado oficialmente em 13 out. 2026. Fluxos necessários são padrões OIDC/OAuth 2.0. | Fixar patch e reler migration/release notes em upgrades; não depender de formato de claims implícito. |
 
-**Recomendação:** adotar estas linhas como baseline da Fase 1 e fixar tags/pins no ADR de stack depois de uma prova de compatibilidade mínima. Os riscos de maior mudança concentram-se em Spring Boot 4 e Angular/TypeScript 6, e a novidade operacional em RabbitMQ 4.4. Não flexibilizar pins para `latest`.
+**Decisão registrada:** baseline aprovado no [ADR-005](../decisions/technology-stack.md). Fixar tags/pins concretos e executar prova de compatibilidade na Fase 1. Riscos principais: Spring Boot 4, Angular/TypeScript 6 e novidade operacional RabbitMQ 4.4. Não flexibilizar pins para `latest`.
 
-## Decisões a validar pelo proprietário
+## Limites e questões remanescentes
 
-1. Aprovar o baseline moderno da tabela, principalmente Spring Boot 4.1.x, Angular 22, TypeScript 6 e RabbitMQ 4.4, ou preferir a combinação conservadora Spring Boot 3.5 + Angular 21 + RabbitMQ 4.3.
-2. Definir se uma referência externa de pedido é opcional, única por cliente e pesquisável.
-3. Definir se a simulação de frete precisa de origem/destino, endereço ou apenas dados sintéticos mínimos. Isso afeta DTO e minimização de dados.
-4. Aprovar política inicial de retenção da chave idempotente e duração dos registros de histórico/outbox.
-5. Aprovar tempos e número máximo de tentativas, e se valores propostos em `event-contracts.md` são aceitáveis.
-6. Definir a URL/hostname canônica local do issuer Keycloak para que navegador, API e containers validem o mesmo `iss`.
+- `externalReference` permanece opcional e sem unicidade aprovada.
+- Retenção operacional de Outbox publicada, timeline e DLQ, rate limiting, SLA e backup produtivo ainda não estão definidos.
+- Topologia concreta de filas TTL/quorum e proteção de retry publish-confirm/ACK será provada na Fase 6.
+- A conectividade do issuer local, as permissões SQL e as versões de patch só serão validadas quando o ambiente existir na Fase 1.
 
 ## Fontes oficiais
 
