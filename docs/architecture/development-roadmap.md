@@ -53,11 +53,11 @@ flowchart LR
 - O desenho final grava pedido, itens, idempotência e Outbox na mesma transação e publica pelo Outbox Publisher após commit; redelivery/duplicidade e efeitos idempotentes são explicitados.
 - Respostas incluem códigos apropriados; segurança é aplicada no servidor.
 - Stack é confrontada com versões oficiais correntes e riscos apontados.
-- As escolhas aprovadas estão registradas em ADR-001..004; ADR-005 conserva stack aprovada. Aceite documental final ainda depende do proprietário.
+- As escolhas aprovadas estão registradas em ADR-001..004; ADR-005 conserva stack aprovada. A documentação da Fase 0 foi aprovada pelo proprietário.
 
 ### Dependências
 
-Nenhuma fase de código foi executada. A Fase 1 tem baseline de stack, hostname canônico do Keycloak, contrato inicial e responsabilidades PostgreSQL definidos. A Fase 2 usa o payload aprovado e seguirá o escopo de client/ownership. Revisão humana da documentação continua sendo portão antes de iniciar Fase 1.
+Nenhuma fase de código foi executada. A Fase 1 tem baseline de stack, hostname canônico do Keycloak, contrato inicial e responsabilidades PostgreSQL definidos. A Fase 2 usa o payload aprovado e seguirá o escopo de client/ownership. A revisão humana da documentação da Fase 0 foi concluída; nenhuma implementação começa automaticamente sem solicitação explícita do proprietário.
 
 ### Funcionalidades deliberadamente adiadas
 
@@ -152,4 +152,4 @@ README conforme guia; exemplos de API; instruções de configuração local sem 
 
 ## Portão de aprovação humana
 
-As decisões aprovadas não autorizam execução de código. A Fase 0 só será considerada validada quando o proprietário revisar este conjunto documental e aceitar seus critérios. Só então poderá ser proposta a entrega 1.1; não iniciar a Fase 1 automaticamente.
+As decisões aprovadas não autorizam execução de código por si só. O proprietário aprovou os critérios documentais da Fase 0. A entrega 1.1 e qualquer trabalho da Fase 1 dependem de solicitação explícita; este roadmap não inicia a implementação automaticamente.

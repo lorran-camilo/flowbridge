@@ -1,6 +1,6 @@
 # FlowBridge — resumo da Fase 0
 
-**Estado:** planejamento documental consolidado; aceite final da Fase 0 aguarda revisão do proprietário. Nenhuma implementação da aplicação foi iniciada.
+**Estado:** planejamento documental da Fase 0 concluído e aprovado pelo proprietário. A aplicação ainda não foi implementada.
 
 ## O que foi planejado
 
@@ -33,7 +33,7 @@ Java 21 LTS; Spring Boot 4.1.2; Angular 22; Node.js 24 LTS; TypeScript 6.0.x; Po
 
 ## Versionamento e CI
 
-Repositório público: [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O fluxo inclui `main`, branches de tarefa, Conventional Commits e revisão via Pull Request. O workflow existente está estruturalmente preparado e executa jobs condicionados à presença de módulos/manifests. A alteração documental está na branch `docs/phase-0-finalization`; ainda não foi commitada, enviada ou submetida a PR.
+Repositório público: [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O fluxo inclui `main`, branches de tarefa, Conventional Commits e revisão via Pull Request. O workflow existente está estruturalmente preparado e executa jobs condicionados à presença de módulos/manifests. A documentação da Fase 0 está versionada na branch `docs/phase-0-finalization` e submetida para revisão no Pull Request #3; nenhum merge foi realizado.
 
 ## Ainda não implementado
 
@@ -51,12 +51,12 @@ Repositório público: [github.com/lorran-camilo/flowbridge](https://github.com/
 - PNG: exportado a partir do SVG com Chrome headless, 1200 × 627, assinatura PNG válida e conferido visualmente para legibilidade/composição.
 - Testes/build da aplicação: não executados; os módulos não existem.
 
-## Critérios para considerar a Fase 0 concluída
+## Critérios de conclusão da Fase 0
 
-1. O proprietário revisa a documentação, o SVG/PNG, o post e as decisões aceitas.
-2. Os contratos e ADRs permanecem consistentes entre pedido/Outbox, `client_id`, hostname/issuer, grants do banco e reprocessamento por dependências.
+1. O proprietário revisou e aprovou a documentação, o SVG/PNG, o post e as decisões registradas.
+2. A consistência entre pedido/Outbox, `client_id`, hostname/issuer, grants do banco e reprocessamento por dependências foi verificada nos contratos e ADRs.
 3. O roadmap conserva portões humanos e não autoriza implementação automaticamente.
 4. O README e o post distinguem planejamento de implementação e não alegam testes de aplicação.
-5. A arte vetorial passa validação XML e o PNG, se gerado, é conferido visualmente para dimensão/legibilidade.
+5. A arte vetorial passou validação XML e o PNG foi conferido para dimensão e legibilidade.
 
-A Fase 1 só pode começar após o proprietário aceitar esses critérios explicitamente.
+O proprietário aprovou a documentação da Fase 0. Essa aprovação não inicia a Fase 1 automaticamente; a próxima fase depende de solicitação explícita do proprietário.
