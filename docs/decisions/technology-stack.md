@@ -1,54 +1,61 @@
-# ADR-005 — baseline atual de versões para o FlowBridge
+# ADR-005 — versões aprovadas do stack FlowBridge
 
-- **Status:** proposta para aprovação; versões verificadas em 2026-11-01.
-- **Contexto:** a tabela de stack no guia é baseline datada e orienta rechecagem oficial, não um pin imutável. Fase 0 precisa propor linhas ainda mantidas e compatíveis.
+- **Status:** Accepted
+- **Data:** 2026-11-01
+- **Decisora:** proprietária do FlowBridge
 
-## Decisão proposta
+## Contexto
 
-| Tecnologia | Linha recomendada | Função no FlowBridge | Por que / validação |
-|---|---|---|
-| Java | 25 LTS | Runtime e linguagem do backend/worker. | LTS atual na roadmap Oracle; Boot 4.1 aceita Java 25. |
-| Spring Boot | 4.1.2 estável, linha 4.1.x | Framework da API e do worker; configura servidor HTTP, dependências, segurança e mensageria. | Atual estável consultado; Java 17–27, Spring Framework 7.0.10+, Maven 3.6.3+. |
-| Maven | Wrapper 3.10.0 | Resolve dependências e compila/testa backend com versão reprodutível. | Apache lista 3.10.0 como atual/recomendado; Maven 4 permanece RC. |
-| PostgreSQL | 18.6 | Banco relacional transacional e fonte de verdade. | Major atual suportado; policy informa suporte até 14 nov. 2030. Não usar PostgreSQL 19 RC. |
-| RabbitMQ | 4.4.0 e patches 4.4.x | Broker que encaminha e retém eventos até worker consumir. | Lançado 20 out. 2026, comunidade até 31 jul. 2027; testar plugin Spring AMQP e Testcontainers por ser linha recém-lançada. |
-| Keycloak | 26.8.1 e patches 26.8.x | Provedor de identidade/OAuth que autentica e emite tokens. | Patch oficial de 13 out. 2026; fixar imagem exata e revisar notas de segurança ao atualizar. |
-| Angular | 22.x | Framework da SPA do painel. | Página oficial mostra 22 em active support; baseline de Angular CLI na mesma major. |
-| Node.js | 24.22.2 LTS | Runtime/ferramenta de build do frontend Angular. | Active LTS; compatível com faixa Angular 22 `^24.15.0`. |
-| TypeScript | 6.0.x dentro de `>=6.0.0 <6.1.0` | Linguagem tipada usada pelo frontend. | Matriz oficial Angular 22; não escolher fora da faixa. |
+A versão inicial do guia contém um baseline que precisava ser revisto antes do desenvolvimento. A Fase 0 comparou compatibilidade, suporte e risco de adoção. A proprietária aprovou Java 21 LTS, Spring Boot 4.1.2, Angular 22, Node.js 24 LTS, PostgreSQL 18, RabbitMQ 4.4 e Keycloak 26.8.x. Este ADR registra essas escolhas; não inicia a Fase 1.
 
-Fixar patch tags, Maven wrapper distribution, Java toolchain e arquivos de versão Node. Registrar versões de bibliotecas efetivamente usadas no build na Fase 1; não copiar a lista de dependências do guia sem necessidade.
+## Decisão
 
-## Problema e motivo
+| Tecnologia | Versão escolhida | Uso no FlowBridge | Compatibilidade e orientação |
+|---|---|---|---|
+| Java | 21 LTS | Runtime e linguagem da API e do worker. | Spring Boot 4.1.2 requer Java 17 ou superior e aceita até Java 27; Java 21 está dentro dessa faixa. |
+| Spring Boot | 4.1.2 | Framework da API e do worker. | Requer Spring Framework 7.0.10 ou superior; validar starters e bibliotecas usadas na Fase 1. |
+| Maven | Wrapper 3.10.0, compartilhado na raiz do repositório. | Build reproduzível da API e do worker. | Executar `./mvnw --batch-mode -f backend/pom.xml verify` e `./mvnw --batch-mode -f worker/pom.xml verify`. O wrapper não fica dentro do backend, para o worker não depender do diretório de outro módulo. |
+| Angular | 22.x | SPA do dashboard. | Manter Angular CLI na mesma major e usar a configuração de teste padrão do CLI, salvo decisão posterior. |
+| Node.js | 24 LTS | Runtime de build e testes do frontend. | Angular 22 aceita Node 24 a partir de `24.15.0`; usar a linha 24 LTS. |
+| TypeScript | 6.0.x | Linguagem do frontend. | A faixa aceita por Angular 22 é `>=6.0.0 <6.1.0`. |
+| PostgreSQL | 18.x | Banco relacional transacional. | Fixar o patch da imagem na configuração da Fase 1 e atualizar com revisão. |
+| RabbitMQ | 4.4.x | Broker de eventos e filas. | Fixar o patch da imagem na configuração da Fase 1 e validar integração com Spring AMQP. |
+| Keycloak | 26.8.x | Provedor de identidade e emissão de tokens. | Fixar o patch da imagem na configuração da Fase 1 e revisar notas de segurança antes de atualizações. |
 
-Baseline antiga pode perder suporte durante o projeto. Escolher versões mantidas e documentadas dá atualizações de segurança e compatibilidade clara. JDK 25 é LTS; Spring Boot 4.1.2 suporta sua faixa. Angular 22 e Node 24 satisfazem matriz oficial. PostgreSQL 18 está em janela longa. Keycloak 26.8.1 recebe patch atual. RabbitMQ 4.4 tem suporte comunitário atual, embora seja lançamento muito novo.
+O workflow de CI usa Java 21 e Node 24, executa nos runners `ubuntu-24.04` e fixa as GitHub Actions por SHA. Os jobs só compilam e testam módulos quando seus manifests existem.
 
-## Alternativas
+## Justificativa
 
-- **Mais conservadora:** Java 21 + Spring Boot 3.5.16 + Angular 21 + Node 24 + PostgreSQL 18 + RabbitMQ 4.3.6 + Keycloak 26.8.1. Boot 3.5 é mantido e suporta Java 25; Angular 21 está em LTS. RabbitMQ 4.3 só tem suporte comunitário até jan. 2027, tornando-se curta para projeto prolongado.
-- **Baseline recomendada:** Java 25, Boot 4.1, Angular 22, PostgreSQL 18, RabbitMQ 4.4, Keycloak 26.8. Mais atual e com melhor janela, mas aumenta risco de quebra em ecossistema e precisa spike de compatibilidade.
-- **Maven 3.9.16:** opção se plugin não suportar 3.10.0; Maven 4 não é GA, não escolher para reprodutibilidade inicial.
-- **PostgreSQL 17.11:** mantido até nov. 2029; alternativa se alguma integração não funcionar com PG18.
+Java 21 é uma versão LTS consolidada e reduz a exposição a mudanças recentes da plataforma. A escolha continua compatível com Spring Boot 4.1.2, que aceita Java 17 a 27. Isso permite adotar o Boot escolhido sem elevar o runtime do projeto para Java 25.
 
-## Riscos e condições de adoção
+Angular 22 aceita Node 24 (`^24.15.0`) e TypeScript 6.0 (`>=6.0.0 <6.1.0`). O job de frontend usa o comando `ng test` por meio do script npm, com `--no-watch --no-progress` para encerrar em CI, e `npm run build` para o build configurado pelo Angular CLI. O runner padrão de Angular 22 usa Vitest; os testes reais serão definidos junto com o dashboard, sem testes fictícios nesta etapa.
 
-1. Boot 4.1 é major com mudanças em Spring Framework 7, APIs e starters. `springdoc-openapi`, Flyway, Testcontainers, Spring AMQP e testes precisam demonstrar suporte real antes de gerar esqueleto. Se dependência essencial não tiver release compatível, voltar para Boot 3.5.16 é decisão técnica justificada, documentada em ADR atualizado — não falha de projeto.
-2. Angular 22/TypeScript 6 é recente; validar biblioteca OIDC, ferramenta de teste e Playwright. Não forçar dependência sem compatibilidade oficial.
-3. RabbitMQ 4.4.0 é recém-lançado; a compatibilidade de protocolo AMQP pode funcionar enquanto plugins, management image e integração de testes ainda precisam confirmação.
-4. Tags Docker precisam ser exatas (ex. `4.4.0-management` se tag oficial existir); verificar nome/tag e digest na data da Fase 1. Não assumir sufixo.
-5. Patches mudam; revalidar no início da fase e antes de lançamento. Versão atual não é política de atualização automática.
+O Maven Wrapper compartilhado na raiz oferece uma única versão de Maven para API e worker. A opção `-f` seleciona explicitamente cada POM, evitando que o worker dependa de um wrapper localizado dentro do backend. Esta decisão substitui a localização ilustrativa `backend/mvnw` na árvore do guia principal; muda apenas a localização da ferramenta de build, não a arquitetura de execução dos módulos.
 
-## Como validar
+## Alternativas consideradas
 
-Antes de criar esqueleto, fazer uma spike curta sem regra de negócio: compilar app mínimo com Boot + Java; resolver plugins Maven; construir Angular CLI com Node/TS; iniciar imagens fixadas; confirmar migrations/Testcontainers e documentação OIDC. Registrar comandos e resultado. A spike pertence à Fase 1 somente após aprovação deste ADR.
+- **Java 25:** também está dentro da faixa suportada pelo Spring Boot 4.1.2, mas exigiria um runtime mais recente sem benefício necessário para este projeto de aprendizado. Poderá ser reconsiderado em ADR futuro.
+- **Spring Boot 3.5.x:** alternativa se uma dependência essencial não for compatível com a linha 4.1. A troca exige evidência de incompatibilidade e aprovação registrada; não deve ocorrer silenciosamente.
+- **Wrappers Maven independentes:** um wrapper por módulo isolaria cada build, mas duplicaria configuração e atualização de versão. Foi escolhido um wrapper comum na raiz com POM explícito.
+- **`ubuntu-latest`:** acompanha a imagem Linux mais recente do GitHub e reduz manutenção, mas pode mudar sem alteração do workflow. Foi escolhido `ubuntu-24.04` para tornar o ambiente do CI mais previsível; a imagem continua recebendo atualizações do GitHub.
 
-## Referências oficiais consultadas
+## Riscos e validação
 
-- [Spring Boot estável e releases](https://docs.spring.io/spring-boot/) · [4.1 system requirements](https://docs.spring.io/spring-boot/system-requirements.html) · [3.5 system requirements](https://docs.spring.io/spring-boot/3.5/system-requirements.html)
-- [Oracle Java SE support roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
-- [Maven releases history](https://maven.apache.org/docs/history.html) · [Maven 3.10 download](https://maven.apache.org/download.cgi)
-- [Angular compatibility matrix](https://angular.dev/reference/versions) · [release/support status](https://angular.dev/reference/releases)
-- [Node.js release schedule](https://nodejs.org/en/about/previous-releases)
-- [PostgreSQL versioning](https://www.postgresql.org/support/versioning/) · [release notes](https://www.postgresql.org/docs/current/release.html)
-- [RabbitMQ release information](https://www.rabbitmq.com/release-information)
-- [Keycloak 26.8.1 release](https://www.keycloak.org/2026/10/keycloak-2681-released)
+1. Spring Boot 4.1.2 é uma major recente. Na Fase 1, validar starters, Spring Security, Spring AMQP, Flyway, Testcontainers e ferramentas de documentação OpenAPI antes de expandir o esqueleto.
+2. A linha RabbitMQ 4.4 é recente. Validar a imagem, o plugin de management e a integração de testes na versão patch escolhida.
+3. Patches de PostgreSQL, RabbitMQ e Keycloak mudam. Revalidar e registrar tags exatas antes da configuração de infraestrutura.
+4. O workflow pode validar somente os módulos presentes. Build e testes reais do backend, worker e frontend permanecerão pendentes até que cada módulo exista.
+5. O Maven Wrapper compartilhado deverá ser gerado e versionado na raiz do repositório na etapa aprovada de estruturação dos builds. Este ADR não cria o wrapper nem os módulos.
+
+Na Fase 1, a validação incluirá uma aplicação mínima com Java 21 e Spring Boot 4.1.2, build com o wrapper raiz, compatibilidade de Angular CLI 22 com Node 24 e TypeScript 6.0, e execução dos serviços com os patches de banco, broker e identidade aprovados. Nenhuma dessas verificações de aplicação foi executada nesta revisão documental.
+
+## Referências oficiais
+
+- [Spring Boot 4.1 system requirements](https://docs.spring.io/spring-boot/system-requirements.html) — Java 17 a 27, Maven 3.6.3 ou superior.
+- [Oracle Java SE support roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html) — ciclo de suporte LTS do Java 21.
+- [Maven Wrapper](https://maven.apache.org/wrapper/) — wrapper para builds Maven reproduzíveis.
+- [Angular compatibility matrix](https://angular.dev/reference/versions) — Node.js e TypeScript aceitos por Angular 22.
+- [Angular unit testing](https://angular.dev/guide/testing) — Vitest padrão e modo de execução única em CI.
+- [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) — suporte às versões principais.
+- [RabbitMQ release information](https://www.rabbitmq.com/release-information) — versões e janelas de suporte.
+- [Keycloak releases](https://www.keycloak.org/downloads) — versões mantidas e downloads oficiais.
