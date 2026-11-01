@@ -5,16 +5,20 @@
 
 ## Texto sugerido
 
-Estou começando a planejar o FlowBridge, um projeto pessoal para fortalecer meu portfólio e colocar Java e Spring Boot em prática.
+Estou começando o FlowBridge, um projeto pessoal para fortalecer meu portfólio e aprofundar meus conhecimentos em Java e Spring Boot.
 
-A ideia é explorar desafios comuns de sistemas backend — como APIs, processamento assíncrono e recuperação de falhas — enquanto aprendo as tecnologias e entendo as decisões por trás de cada solução. O escopo ainda está sendo definido: não há funcionalidades implementadas para demonstrar neste momento.
+A proposta é construir uma plataforma de integração e automação de pedidos, explorando desafios comuns de backend: APIs REST, persistência, processamento assíncrono, integrações e recuperação de falhas. O planejamento prevê Java e Spring Boot, Angular, PostgreSQL, RabbitMQ e Keycloak.
 
-Também vou usar Inteligência Artificial como apoio técnico e didático: para estudar conceitos, comparar alternativas, analisar problemas e revisar soluções. Eu conduzo o projeto e sou responsável por aprender, revisar, testar, validar e compreender o que vier a ser implementado.
+Neste momento, o projeto está na etapa de planejamento: há documentação de arquitetura, decisões técnicas e uma estrutura inicial de CI, mas a implementação da aplicação ainda não começou. O diagrama é conceitual e mostra a arquitetura planejada, não telas ou funcionalidades existentes.
 
-Quero compartilhar essa jornada com transparência, incluindo o que funcionar, o que der trabalho e o que eu ainda precisar aprender. Se você já passou por uma experiência parecida com Java ou Spring Boot, que conceito mais mudou a forma como você pensa sobre backend?
+Vou utilizar Inteligência Artificial como apoio ao aprendizado e ao trabalho técnico: para estudar conceitos, entender tecnologias, comparar alternativas arquiteturais, analisar problemas e revisar soluções. Eu conduzo o projeto e sou responsável por estudar, revisar, testar, validar e compreender cada implementação. Quero compartilhar a jornada com transparência, inclusive desafios, decisões e o que ainda estiver em aberto.
+
+O repositório público está em: https://github.com/lorran-camilo/flowbridge
+
+Se você já construiu um projeto de aprendizado com Java ou Spring Boot, que conceito ou desafio foi mais importante para você?
 
 #Java #SpringBoot #Backend #AprendizadoContínuo #InteligênciaArtificial
 
 ## Nota editorial
 
-Este post fala do início do planejamento. Java, Spring Boot e as demais tecnologias do diagrama são planejadas, não evidência de implementação ou domínio. Revise o texto e a imagem antes de qualquer publicação; este rascunho não foi publicado.
+Este post descreve planejamento, documentação arquitetural, decisões técnicas e estrutura inicial de CI. Java, Spring Boot e as demais tecnologias são o stack selecionado para fases futuras, não evidência de aplicação implementada ou domínio pessoal. Revise o texto e a imagem antes de qualquer publicação; este rascunho não foi publicado.

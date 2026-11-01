@@ -11,9 +11,11 @@ Use este documento para registrar aprendizados do proprietário, não apenas tó
 
 ## Registro inicial — 2026-11-01
 
+O planejamento e as decisões revisadas apresentaram os conceitos abaixo. O proprietário ainda não confirmou quais compreendeu; por isso nenhum tópico consta como aprendido. A aplicação não foi implementada, então não há prática em código para registrar.
+
 | Fase | Conceitos/tópicos | Relação com o FlowBridge | Estado |
 |---|---|---|---|
-| Fase 0 — planejamento | Monólito modular e worker; API e contratos; OAuth 2.0/OIDC; persistência e idempotência; Outbox; RabbitMQ, retry e DLQ; compatibilidade de versões. | Foram descritos nos documentos de arquitetura para apoiar a revisão e o estudo antes da implementação. | **Apresentado / a validar.** Nenhum foi marcado como compreendido sem confirmação do proprietário. |
+| Fase 0 — planejamento | Monólito modular e worker; API e contratos; OAuth 2.0/OIDC; persistência e idempotência; Outbox; RabbitMQ, retry e DLQ; dependências de etapas/reprocessamento; privilégios PostgreSQL; compatibilidade de versões. | Foram descritos nos documentos de arquitetura para apoiar revisão e estudo antes da implementação. | **Apresentado / a validar.** Nenhum foi marcado como compreendido sem confirmação do proprietário. |
 
 ## Próximos registros
 
