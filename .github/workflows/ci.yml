@@ -58,9 +58,11 @@ jobs:
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.13+9'
           cache: maven
-          cache-dependency-path: backend/pom.xml
+          cache-dependency-path: |
+            pom.xml
+            backend/pom.xml
       - name: Verify backend with the shared root wrapper
         run: bash ./mvnw --batch-mode -f backend/pom.xml verify
 
@@ -76,9 +78,11 @@ jobs:
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.13+9'
           cache: maven
-          cache-dependency-path: worker/pom.xml
+          cache-dependency-path: |
+            pom.xml
+            worker/pom.xml
       - name: Verify worker with the shared root wrapper
         run: bash ./mvnw --batch-mode -f worker/pom.xml verify
 
@@ -93,7 +97,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: '24'
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - name: Install frontend dependencies

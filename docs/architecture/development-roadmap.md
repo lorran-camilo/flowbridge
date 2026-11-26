@@ -65,7 +65,7 @@ Nenhuma fase de código foi executada. A Fase 1 tem baseline de stack, hostname 
 - Endereços reais, catálogo de produtos, cotação comercial, pagamentos, faturamento fiscal, tenants completos e reprocessamento por clients ficam fora do escopo inicial.
 - A publicação pelo Outbox Publisher após commit faz parte do fluxo arquitetural desde a primeira entrega de mensageria. A Fase 5 introduz consumo e publicação via Outbox; a Fase 6 acrescenta recuperação, retry/DLQ e reprocessamento. A API não publica diretamente no broker nem chama o publisher.
 - Retenção de Outbox publicada, timeline e DLQ, rate limiting, SLA e política produtiva de backup/expurgo continuam fora do escopo local ou pendentes antes de uso produtivo.
-- CI está estruturalmente preparada, mas build/testes reais aguardam a existência dos manifests.
+- A configuração inicial da CI já existe. As entregas 1.2 habilitam jobs de build vazios para API e worker; testes de aplicação só existirão com implementação de código.
 
 ## Entregas curtas depois da aprovação da Fase 0
 
@@ -79,6 +79,12 @@ Nenhuma fase de código foi executada. A Fase 1 tem baseline de stack, hostname 
 | 1.6 | CI estrutural | 1.2–1.5 | Workflow roda build e testes vazios; actions fixadas e permissões mínimas. | CI, workflow, artifacts e secrets. |
 
 Cada subentrega recebe revisão humana antes da próxima; o guia principal agrupa-as dentro da Fase 1.
+
+### Estado das entregas da Fase 1
+
+- **1.1 — Stack fixada:** concluída nesta branch; versões e compatibilidade atualizadas no ADR-005. A CI fixa Temurin 21.0.13+9 e o arquivo `.nvmrc` fixa Node.js 24.22.3.
+- **1.2 — Estrutura Maven:** concluída nesta branch; POM agregador raiz, POMs vazios para API e worker e wrapper Maven único. Build do reactor e dos dois módulos passou localmente; execução do workflow GitHub fica registrada no PR desta branch.
+- **Próxima entrega após revisão humana:** 1.3, criar app shells Spring Boot e health básico.
 
 ## Fase 2 — domínio, banco e REST
 
