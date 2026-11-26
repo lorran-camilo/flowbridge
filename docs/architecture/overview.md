@@ -6,7 +6,7 @@
 
 Este documento consolida as decisões aprovadas pelo proprietário na Fase 0. Detalhes ainda não decididos aparecem como limites explícitos; esta documentação não altera a especificação principal nem inicia implementação.
 
-Na entrega 1.3, API e worker passaram a iniciar como processos Spring Boot separados. Cada um expõe somente o endpoint básico de saúde do Actuator em `/actuator/health`; esse endpoint não indica prontidão das dependências externas, que ainda não foram conectadas.
+Na entrega 1.3, API e worker passaram a iniciar como processos Spring Boot separados. Cada um expõe somente o endpoint básico de saúde do Actuator em `/actuator/health`. Na entrega 1.5, PostgreSQL, RabbitMQ e Keycloak iniciaram como containers locais saudáveis. As permissões de banco foram verificadas e a discovery OIDC publicou o issuer canônico. O Windows ainda precisa da entrada local documentada em `infra/README.md` para resolver esse hostname fora da rede Docker.
 
 ## Resumo
 

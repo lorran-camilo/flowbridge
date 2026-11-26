@@ -1,0 +1,103 @@
+name: flowbridge
+
+services:
+  postgres:
+    image: postgres:18.7
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${FLOWBRIDGE_POSTGRES_DB:-flowbridge}
+      POSTGRES_USER: ${FLOWBRIDGE_POSTGRES_BOOTSTRAP_USER:-flowbridge_bootstrap}
+      POSTGRES_PASSWORD: ${FLOWBRIDGE_POSTGRES_BOOTSTRAP_PASSWORD:?Set local passwords in .env}
+      FLOWBRIDGE_POSTGRES_MIGRATOR_PASSWORD: ${FLOWBRIDGE_POSTGRES_MIGRATOR_PASSWORD:?Set local passwords in .env}
+      FLOWBRIDGE_POSTGRES_API_PASSWORD: ${FLOWBRIDGE_POSTGRES_API_PASSWORD:?Set local passwords in .env}
+      FLOWBRIDGE_POSTGRES_WORKER_PASSWORD: ${FLOWBRIDGE_POSTGRES_WORKER_PASSWORD:?Set local passwords in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./infra/postgres/init/10-create-roles.sh:/docker-entrypoint-initdb.d/10-create-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - flowbridge
+
+  rabbitmq:
+    image: rabbitmq:4.4.1-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${FLOWBRIDGE_RABBITMQ_USER:-flowbridge_dev}
+      RABBITMQ_DEFAULT_PASS: ${FLOWBRIDGE_RABBITMQ_PASSWORD:?Set local passwords in .env}
+      RABBITMQ_DEFAULT_VHOST: flowbridge
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      - flowbridge
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2
+    restart: unless-stopped
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${FLOWBRIDGE_KEYCLOAK_ADMIN_USER:-flowbridge_admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${FLOWBRIDGE_KEYCLOAK_ADMIN_PASSWORD:?Set local passwords in .env}
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: http://keycloak.flowbridge.test:8080
+      KC_HTTP_ENABLED: "true"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./infra/keycloak/flowbridge-realm.json:/opt/keycloak/data/import/flowbridge-realm.json:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0;
+          grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 45s
+    networks:
+      flowbridge:
+        aliases:
+          - keycloak.flowbridge.test
+
+  postgres-grants-check:
+    image: postgres:18.7
+    profiles: [verification]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/scripts/check-grants.sh"]
+    volumes:
+      - ./infra/postgres/check-grants.sh:/scripts/check-grants.sh:ro
+    environment:
+      FLOWBRIDGE_POSTGRES_DB: ${FLOWBRIDGE_POSTGRES_DB:-flowbridge}
+      FLOWBRIDGE_POSTGRES_MIGRATOR_PASSWORD: ${FLOWBRIDGE_POSTGRES_MIGRATOR_PASSWORD:?Set local passwords in .env}
+      FLOWBRIDGE_POSTGRES_API_PASSWORD: ${FLOWBRIDGE_POSTGRES_API_PASSWORD:?Set local passwords in .env}
+      FLOWBRIDGE_POSTGRES_WORKER_PASSWORD: ${FLOWBRIDGE_POSTGRES_WORKER_PASSWORD:?Set local passwords in .env}
+    networks:
+      - flowbridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  keycloak_data:
+
+networks:
+  flowbridge:
+    name: flowbridge

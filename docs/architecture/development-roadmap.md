@@ -86,7 +86,8 @@ Cada subentrega recebe revisão humana antes da próxima; o guia principal agrup
 - **1.2 — Estrutura Maven:** concluída nesta branch; POM agregador raiz, POMs vazios para API e worker e wrapper Maven único. Build do reactor e dos dois módulos passou localmente; execução do workflow GitHub fica registrada no PR desta branch.
 - **1.3 — App shells e health:** implementada nesta branch; API e worker têm classes `main` independentes, Spring MVC, Actuator e testes de contexto que consultam `/actuator/health`. Os dois JARs iniciaram individualmente e responderam `{"status":"UP"}`.
 - **1.4 — Shell Angular:** implementada nesta branch; workspace Angular CLI 22.3.0, dependências travadas em `package-lock.json`, shell standalone em português, teste Vitest estrutural e comandos `npm ci`, teste e build verificados localmente. A CI usa Node 24.22.3 pelo `.nvmrc`.
-- **Próxima entrega após validação humana:** 1.5, Docker Compose local de PostgreSQL, RabbitMQ e Keycloak.
+- **1.5 — Dependências locais:** Compose declara PostgreSQL, RabbitMQ e Keycloak com volumes, health checks, hostname canônico e roles PostgreSQL separadas. Os três containers iniciaram saudáveis; o verificador runtime confirmou as permissões do PostgreSQL, a rede Docker resolveu o alias do Keycloak e a discovery respondeu com o issuer canônico. A resolução desse hostname no Windows depende da entrada local em `hosts`, documentada em `infra/README.md` e ainda pendente por falta de permissão administrativa nesta máquina.
+- **Próxima entrega após validação humana:** 1.6, consolidar CI estrutural para os três módulos.
 
 ## Fase 2 — domínio, banco e REST
 

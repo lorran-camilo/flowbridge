@@ -86,6 +86,10 @@ O [ADR-005 — stack aprovada](docs/decisions/technology-stack.md) registra comp
 
 O repositório público está em [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O workflow do GitHub Actions executa em Pull Requests e na branch principal, com actions fixadas por SHA e permissões mínimas. Os jobs da API e do worker executam `verify`; o job do frontend executa `npm ci`, testes, lint quando configurado e build quando `frontend/package.json` existe. Builds estruturais não significam que regras de pedidos ou integrações passaram.
 
+## Ambiente local
+
+O ambiente de PostgreSQL, RabbitMQ e Keycloak é definido em [compose.yaml](compose.yaml). Consulte [as instruções locais](infra/README.md) para configurar `.env`, o hostname canônico e verificar roles PostgreSQL e discovery OIDC.
+
 Na Fase 0 foram feitas verificações documentais, de links e do material visual, registradas no [resumo da Fase 0](docs/architecture/phase-0-summary.md). Essas verificações não são testes de software.
 
 ## Testes e implementação
