@@ -1,10 +1,12 @@
 # FlowBridge — visão geral da arquitetura
 
-**Estado:** arquitetura aprovada na Fase 0; implementação ainda não iniciada
+**Estado:** arquitetura aprovada na Fase 0; esqueleto Spring Boot da API e do worker iniciado na entrega 1.3 da Fase 1. Nenhuma regra de pedidos foi implementada.
 **Referência funcional:** [`FLOWBRIDGE_GUIA_DE_DESENVOLVIMENTO_CLAUDE_CODE_REENVIO.md`](../../FLOWBRIDGE_GUIA_DE_DESENVOLVIMENTO_CLAUDE_CODE_REENVIO.md)  
 **Data de verificação da stack:** 1 nov. 2026
 
 Este documento consolida as decisões aprovadas pelo proprietário na Fase 0. Detalhes ainda não decididos aparecem como limites explícitos; esta documentação não altera a especificação principal nem inicia implementação.
+
+Na entrega 1.3, API e worker passaram a iniciar como processos Spring Boot separados. Cada um expõe somente o endpoint básico de saúde do Actuator em `/actuator/health`; esse endpoint não indica prontidão das dependências externas, que ainda não foram conectadas.
 
 ## Resumo
 

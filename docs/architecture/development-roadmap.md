@@ -84,7 +84,8 @@ Cada subentrega recebe revisão humana antes da próxima; o guia principal agrup
 
 - **1.1 — Stack fixada:** concluída nesta branch; versões e compatibilidade atualizadas no ADR-005. A CI fixa Temurin 21.0.13+9 e o arquivo `.nvmrc` fixa Node.js 24.22.3.
 - **1.2 — Estrutura Maven:** concluída nesta branch; POM agregador raiz, POMs vazios para API e worker e wrapper Maven único. Build do reactor e dos dois módulos passou localmente; execução do workflow GitHub fica registrada no PR desta branch.
-- **Próxima entrega após revisão humana:** 1.3, criar app shells Spring Boot e health básico.
+- **1.3 — App shells e health:** implementada nesta branch; API e worker têm classes `main` independentes, Spring MVC, Actuator e testes de contexto que consultam `/actuator/health`. Os dois JARs iniciaram individualmente e responderam `{"status":"UP"}`.
+- **Próxima entrega após validação humana:** 1.4, inicializar Angular CLI e estados mínimos.
 
 ## Fase 2 — domínio, banco e REST
 
