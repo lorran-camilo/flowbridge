@@ -9,7 +9,7 @@
 - Não usar mocks para afirmar que PostgreSQL, RabbitMQ, Keycloak ou Docker funcionam; usar integração real nos pontos indicados.
 - Ao fim de cada entrega, apresentar diff, comandos/resultados, limites e perguntas de revisão. O proprietário valida critérios de fase antes de avançar.
 - Guardar decisões aprovadas em ADR; se implementação revelar conflito, parar a mudança de arquitetura e apresentar alternativas.
-- Este plano detalha o encadeamento do guia principal; não autoriza criar nada da Fase 1 agora.
+- Este plano detalha o encadeamento do guia principal; a implementação autorizada e o estado de cada entrega ficam registrados abaixo. A conclusão de uma entrega não inicia a próxima sem revisão humana.
 
 ## Dependências gerais
 
@@ -57,7 +57,7 @@ flowchart LR
 
 ### Dependências
 
-Nenhuma fase de código foi executada. A Fase 1 tem baseline de stack, hostname canônico do Keycloak, contrato inicial e responsabilidades PostgreSQL definidos. A Fase 2 usa o payload aprovado e seguirá o escopo de client/ownership. A revisão humana da documentação da Fase 0 foi concluída; nenhuma implementação começa automaticamente sem solicitação explícita do proprietário.
+A Fase 1 tem baseline de stack, hostname canônico do Keycloak, contrato inicial e responsabilidades PostgreSQL definidos. O estado das entregas já executadas está registrado abaixo. A Fase 2 usará o payload aprovado e seguirá o escopo de client/ownership. A revisão humana da documentação da Fase 0 foi concluída.
 
 ### Funcionalidades deliberadamente adiadas
 
@@ -85,7 +85,8 @@ Cada subentrega recebe revisão humana antes da próxima; o guia principal agrup
 - **1.1 — Stack fixada:** concluída nesta branch; versões e compatibilidade atualizadas no ADR-005. A CI fixa Temurin 21.0.13+9 e o arquivo `.nvmrc` fixa Node.js 24.22.3.
 - **1.2 — Estrutura Maven:** concluída nesta branch; POM agregador raiz, POMs vazios para API e worker e wrapper Maven único. Build do reactor e dos dois módulos passou localmente; execução do workflow GitHub fica registrada no PR desta branch.
 - **1.3 — App shells e health:** implementada nesta branch; API e worker têm classes `main` independentes, Spring MVC, Actuator e testes de contexto que consultam `/actuator/health`. Os dois JARs iniciaram individualmente e responderam `{"status":"UP"}`.
-- **Próxima entrega após validação humana:** 1.4, inicializar Angular CLI e estados mínimos.
+- **1.4 — Shell Angular:** implementada nesta branch; workspace Angular CLI 22.3.0, dependências travadas em `package-lock.json`, shell standalone em português, teste Vitest estrutural e comandos `npm ci`, teste e build verificados localmente. A CI usa Node 24.22.3 pelo `.nvmrc`.
+- **Próxima entrega após validação humana:** 1.5, Docker Compose local de PostgreSQL, RabbitMQ e Keycloak.
 
 ## Fase 2 — domínio, banco e REST
 
@@ -159,4 +160,4 @@ README conforme guia; exemplos de API; instruções de configuração local sem 
 
 ## Portão de aprovação humana
 
-As decisões aprovadas não autorizam execução de código por si só. O proprietário aprovou os critérios documentais da Fase 0. A entrega 1.1 e qualquer trabalho da Fase 1 dependem de solicitação explícita; este roadmap não inicia a implementação automaticamente.
+As decisões aprovadas não autorizam execução de código por si só. O proprietário aprovou os critérios documentais da Fase 0 e autorizou as entregas da Fase 1 até 1.4. A entrega 1.5 depende da revisão humana desta entrega e de sua solicitação; este roadmap não inicia a implementação automaticamente.

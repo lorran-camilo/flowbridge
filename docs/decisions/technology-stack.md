@@ -47,7 +47,7 @@ O Maven Wrapper compartilhado na raiz oferece uma única versão de Maven para A
 4. O workflow pode validar somente os módulos presentes. Build e testes reais do backend, worker e frontend permanecerão pendentes até que cada módulo exista.
 5. Maven Wrapper 3.3.4 usa uma distribuição Maven fixada. A distribuição oficial do Maven 3.10.2 deve ser obtida pelo wrapper; a instalação local de Maven não substitui essa verificação.
 
-Na entrega 1.2 da Fase 1, a validação inclui o build Maven dos módulos vazios com Spring Boot 4.1.3 como parent e Java 21 como alvo de bytecode. O ambiente local encontrado usa JDK 25; a CI fixa Temurin 21.0.13+9. A matriz oficial confirma Angular 22.3.0, Node 24.22.3 e TypeScript 6.0.3. PostgreSQL 18.7, RabbitMQ 4.4.1 e Keycloak 26.8.2 ficam fixados para Compose na entrega 1.5.
+Na entrega 1.2 da Fase 1, o build Maven validou Spring Boot 4.1.3 como parent e Java 21 como alvo de bytecode. Na entrega 1.4, o workspace Angular CLI 22.3.0, Node 24 e TypeScript 6.0.3 foram usados no build e testes locais; a CI seleciona o Node exato do `.nvmrc` (24.22.3). O ambiente local ainda usa Node 24.16.0, que está dentro da faixa aceita pela matriz do Angular 22. PostgreSQL 18.7, RabbitMQ 4.4.1 e Keycloak 26.8.2 ficam fixados para Compose na entrega 1.5.
 
 ## Referências oficiais
 

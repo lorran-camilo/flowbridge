@@ -6,7 +6,7 @@ FlowBridge é um projeto pessoal de aprendizado e portfólio sobre integração 
 
 ## Estado atual do projeto
 
-**Fase 0 concluída. As entregas 1.1 e 1.2 da Fase 1 estão implementadas nesta branch e aguardam revisão; API e worker ainda são módulos vazios, sem comportamento de aplicação.**
+**Fase 0 concluída. As entregas 1.1 a 1.4 da Fase 1 estão implementadas nesta branch e aguardam revisão. API e worker têm shells Spring Boot com health básico; o frontend tem o shell inicial Angular. Ainda não existem regras de pedidos, login ou integrações.**
 
 ## Objetivo e escopo
 
@@ -84,13 +84,13 @@ O [ADR-005 — stack aprovada](docs/decisions/technology-stack.md) registra comp
 
 ## CI e validações
 
-O repositório público está em [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O workflow do GitHub Actions executa em Pull Requests e na branch principal, com actions fixadas por SHA e permissões mínimas. Nesta etapa, os jobs da API e do worker executam `verify` nos módulos vazios; o job do frontend continua condicionado à existência do `package.json`. Builds estruturais não significam que testes de aplicação passaram.
+O repositório público está em [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O workflow do GitHub Actions executa em Pull Requests e na branch principal, com actions fixadas por SHA e permissões mínimas. Os jobs da API e do worker executam `verify`; o job do frontend executa `npm ci`, testes, lint quando configurado e build quando `frontend/package.json` existe. Builds estruturais não significam que regras de pedidos ou integrações passaram.
 
 Na Fase 0 foram feitas verificações documentais, de links e do material visual, registradas no [resumo da Fase 0](docs/architecture/phase-0-summary.md). Essas verificações não são testes de software.
 
 ## Testes e implementação
 
-Os builds estruturais já podem ser repetidos com `mvnw.cmd --batch-mode verify` no Windows ou `./mvnw --batch-mode verify` em macOS/Linux. Os módulos ainda não contêm código de aplicação nem testes. Regras importantes seguirão TDD; testes de integração com PostgreSQL, RabbitMQ ou Keycloak serão adicionados quando os critérios exigirem comprovar essas integrações.
+Os builds do backend podem ser repetidos com `mvnw.cmd --batch-mode verify` no Windows ou `./mvnw --batch-mode verify` em macOS/Linux. Para o frontend, use `npm ci`, `npm test -- --no-watch --no-progress` e `npm run build` dentro de `frontend/`. O shell tem um teste estrutural; regras importantes seguirão TDD. Testes de integração com PostgreSQL, RabbitMQ ou Keycloak serão adicionados quando os critérios exigirem comprovar essas integrações.
 
 ## Aprendizado e uso de IA
 
@@ -100,7 +100,7 @@ O [registro de aprendizado](docs/learning/LEARNING_LOG.md) separa conceitos apre
 
 ## Roadmap e próximos passos
 
-O [roadmap](docs/architecture/development-roadmap.md) organiza o trabalho em entregas incrementais e preserva a revisão humana entre fases. O próximo trabalho de implementação só começa mediante solicitação do proprietário.
+O [roadmap](docs/architecture/development-roadmap.md) organiza o trabalho em entregas incrementais e preserva a revisão humana entre fases. A entrega 1.5 é a próxima após a validação humana desta entrega.
 
 Pendências reais para fases futuras:
 
