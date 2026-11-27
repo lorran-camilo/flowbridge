@@ -123,7 +123,17 @@ O mesmo nome também precisa ser alcançável por cada participante: o arquivo `
 
 Na entrega 1.5, o realm vazio `flowbridge` iniciou e publicou discovery pelo endpoint `.well-known/openid-configuration`; a resposta apresentou o issuer esperado. Isso verifica disponibilidade e metadados do realm. Ainda não foram configurados clientes Angular ou de integração, login de usuário, emissão de tokens para esses clientes nem validação de token pela API. Esses comportamentos ficam para a fase de identidade. O ambiente atual usa modo de desenvolvimento e HTTP local, não configuração de produção.
 
-**Estado das respostas:** separação entre API e migrations — **Compreendido (confirmado)** no princípio; aplicação de migrations será praticada depois. Diferença entre health de container, health de API e integração — **A revisar**. OAuth 2.0/OIDC/Keycloak, tokens, PKCE e issuer — **Apresentado nesta sessão; ainda não confirmado pelo proprietário**.
+#### Retorno do proprietário — revisão de OIDC e tokens
+
+**Resposta do proprietário:** “OIDC é um formato padrão para confirmar quem fez o login. Keycloak é um serviço que segue esse formato. O access token é quem é utilizado para autorizar uma chamada, o id token é o identificador do cliente por exemplo.”
+
+**Avaliação e precisão:** a distinção principal está correta. OIDC é mais precisamente um protocolo/camada de identidade construído sobre OAuth 2.0, em vez de um formato de dados. Keycloak é um produto/servidor que implementa OIDC e OAuth 2.0. A API usa o access token para autorizar uma chamada, depois de validar sua assinatura, emissor, validade, público e permissões.
+
+O ID token não é, em geral, o identificador do cliente. Ele é destinado ao cliente OIDC e contém informações sobre a autenticação e o usuário. Dentro dele, `sub` identifica o usuário autenticado; `aud` indica o cliente destinatário do ID token e normalmente contém o identificador daquele cliente. Essa diferença entre “quem está autenticado” (`sub`) e “para quem o token foi emitido” (`aud`) ainda deve ser praticada.
+
+**Estado atualizado:** diferença entre OIDC e Keycloak, e o papel do access token — **Compreendido (confirmado)**, com a precisão de que OIDC é protocolo/camada, não formato. Função do ID token e claims `sub` versus `aud` — **A revisar**. PKCE e validação de issuer/audience pela API — **Apresentados; a confirmar em exercício futuro**.
+
+**Próximo exercício de revisão:** explicar com suas palavras a diferença entre `sub` e `aud` num ID token, sem tratar o ID token como credencial da API.
 
 **Referências do projeto e fontes oficiais:** [ADR-002 — identidade e autorização](../decisions/ADR-002-identity-and-authorization.md), [ambiente local](../../infra/README.md), [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html), [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html), [guia oficial de administração do Keycloak](https://www.keycloak.org/docs/latest/server_admin/) e [OAuth 2.0 Security Best Current Practice, RFC 9700](https://www.rfc-editor.org/rfc/rfc9700.html).
 
