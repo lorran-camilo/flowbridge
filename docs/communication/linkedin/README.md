@@ -29,4 +29,7 @@ Esta pasta organiza a comunicação pública do FlowBridge como um projeto de ap
 - [Diretrizes visuais](VISUAL_GUIDELINES.md)
 - [Primeiro rascunho — kickoff](posts/01-project-kickoff.md)
 - [Imagem kickoff SVG](assets/flowbridge-kickoff.svg)
+- [Rascunho 02 — ambiente local e aprendizados da Fase 1](posts/02-local-environment-and-learning.md)
+- [Imagem da Fase 1 — ambiente local SVG](assets/flowbridge-phase-1-local-environment.svg)
+- [Imagem da Fase 1 — ambiente local PNG](assets/flowbridge-phase-1-local-environment.png)
 - [Imagem kickoff PNG](assets/flowbridge-kickoff.png)

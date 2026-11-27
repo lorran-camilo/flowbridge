@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #f5faff;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.shell {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 4rem 2rem;
+}
+
+.eyebrow {
+  color: #73e6f2;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin-block: 1rem;
+  font-size: clamp(2.5rem, 7vw, 4rem);
+}
+
+.description {
+  max-width: 42rem;
+  color: #a9c4d8;
+  line-height: 1.6;
+}

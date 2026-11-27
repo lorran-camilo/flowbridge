@@ -16,6 +16,16 @@ Este registro reúne fatos que podem embasar futuras publicações. Não substit
 - **Rascunho:** `posts/01-project-kickoff.md`, contém link do repositório e declara claramente que o desenvolvimento da aplicação ainda não começou. Aguarda revisão e aprovação; não foi publicado.
 - **Visual:** `assets/flowbridge-kickoff.svg` e PNG associado são materiais conceituais. Representam arquitetura planejada, com pedido + Outbox na mesma transação e publicação posterior pelo Outbox Publisher; não demonstram sistema executável.
 
+## 2026-11-26 — Fase 1: shell frontend e dependências locais
+
+- **Estado:** entregas 1.4 e 1.5 implementadas nesta branch; aguardam revisão/validação humana conforme o roadmap.
+- **Shell Angular (1.4):** `npm ci`, `npm test -- --no-watch --no-progress` e `npm run build` foram executados; o teste estrutural passou. O painel segue sem login, telas de pedidos e chamada à API.
+- **Infra local (1.5):** Docker Compose iniciou PostgreSQL 18.7, RabbitMQ 4.4.1 e Keycloak 26.8.2 com health checks saudáveis. `postgres-grants-check` confirmou que migrator cria estruturas de teste e que API/worker não podem criar tabelas. Alias Docker do Keycloak e discovery do realm vazio foram verificados; a discovery publicou o issuer canônico.
+- **Limites:** API e worker não foram ligados às dependências nesta entrega. Clientes OIDC, login, tokens e validação de token pela API não foram configurados. A entrada do hostname canônico no `hosts` do Windows continua pendente por exigir permissão administrativa.
+- **Aprendizado registrado:** as respostas do proprietário sobre Maven, Spring Boot, npm/Vitest, health checks, migrations, OIDC e Keycloak estão em [LEARNING_LOG.md](../../learning/LEARNING_LOG.md). O papel de `sub` e `aud` segue como exercício de revisão.
+- **Rascunho:** [02 — Ambiente local e aprendizados da Fase 1](posts/02-local-environment-and-learning.md), texto e SVG/PNG criados para revisão; não publicado.
+- **Verificações documentais:** SVG validado como XML, com `title`, `desc` e `viewBox` 1200 × 627; PNG exportado em 1200 × 627 e inspecionado visualmente; `git diff --check` executado antes do commit. Testes de aplicação não se aplicam às alterações de documentação desta entrada.
+
 ## Entradas futuras
 
 Adicionar uma seção por marco usando [PHASE_UPDATE_TEMPLATE.md](PHASE_UPDATE_TEMPLATE.md). Consultar código, testes efetivamente executados e Git; propor post somente quando houver aprendizado ou resultado demonstrável. Todo texto permanece rascunho até aprovação explícita.

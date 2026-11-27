@@ -6,7 +6,7 @@ FlowBridge é um projeto pessoal de aprendizado e portfólio sobre integração 
 
 ## Estado atual do projeto
 
-**O planejamento documental da Fase 0 está concluído e aprovado; a aplicação ainda não foi implementada.**
+**Fase 0 concluída. As entregas 1.1 a 1.4 da Fase 1 estão implementadas nesta branch e aguardam revisão. API e worker têm shells Spring Boot com health básico; o frontend tem o shell inicial Angular. Ainda não existem regras de pedidos, login ou integrações.**
 
 ## Objetivo e escopo
 
@@ -56,15 +56,15 @@ Os detalhes e alternativas estão registrados nos [ADRs](docs/decisions/).
 
 | Tecnologia | Versão aprovada | Papel planejado |
 |---|---:|---|
-| Java | 21 LTS | Runtime da API e do worker |
-| Spring Boot | 4.1.2 | Framework da API e do worker |
-| Angular | 22 | Dashboard web |
-| Node.js | 24 LTS | Ferramentas, build e testes do frontend |
-| TypeScript | 6.0.x | Linguagem do frontend |
-| PostgreSQL | 18.x | Persistência relacional |
-| RabbitMQ | 4.4.x | Broker de mensagens |
-| Keycloak | 26.8.x | Provedor de identidade |
-| Maven Wrapper | 3.10.0, compartilhado na raiz | Build reproduzível dos módulos Java, com seleção explícita de POM por `-f` |
+| Java | Eclipse Temurin 21.0.13+9 | Runtime da CI e versão-alvo dos módulos Java |
+| Spring Boot | 4.1.3 | Framework da API e do worker |
+| Angular | 22.3.0 | Dashboard web |
+| Node.js | 24.22.3 LTS | Ferramentas, build e testes do frontend |
+| TypeScript | 6.0.3 | Linguagem do frontend |
+| PostgreSQL | 18.7 | Persistência relacional |
+| RabbitMQ | 4.4.1 | Broker de mensagens |
+| Keycloak | 26.8.2 | Provedor de identidade |
+| Maven Wrapper | 3.10.2, compartilhado na raiz | Build reproduzível do reactor e dos módulos individuais |
 
 O [ADR-005 — stack aprovada](docs/decisions/technology-stack.md) registra compatibilidade, alternativas e validações ainda necessárias ao preparar os módulos.
 
@@ -84,13 +84,17 @@ O [ADR-005 — stack aprovada](docs/decisions/technology-stack.md) registra comp
 
 ## CI e validações
 
-O repositório público está em [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O workflow do GitHub Actions executa em Pull Requests e na branch principal, com actions fixadas por SHA e permissões mínimas. Os jobs de build e teste são condicionados à existência dos manifests dos módulos; jobs ignorados por módulos ausentes não significam que esses builds ou testes passaram.
+O repositório público está em [github.com/lorran-camilo/flowbridge](https://github.com/lorran-camilo/flowbridge). O workflow do GitHub Actions executa em Pull Requests e na branch principal, com actions fixadas por SHA e permissões mínimas. Os jobs da API e do worker executam `verify`; o job do frontend executa `npm ci`, testes, lint quando configurado e build quando `frontend/package.json` existe. Builds estruturais não significam que regras de pedidos ou integrações passaram.
+
+## Ambiente local
+
+O ambiente de PostgreSQL, RabbitMQ e Keycloak é definido em [compose.yaml](compose.yaml). Consulte [as instruções locais](infra/README.md) para configurar `.env`, o hostname canônico e verificar roles PostgreSQL e discovery OIDC.
 
 Na Fase 0 foram feitas verificações documentais, de links e do material visual, registradas no [resumo da Fase 0](docs/architecture/phase-0-summary.md). Essas verificações não são testes de software.
 
 ## Testes e implementação
 
-Ainda não há comandos de execução ou testes de aplicação a apresentar. Quando os módulos forem criados, cada entrega seguirá TDD para regras importantes e usará testes de integração com PostgreSQL, RabbitMQ ou Keycloak real quando os critérios exigirem comprovar a integração.
+Os builds do backend podem ser repetidos com `mvnw.cmd --batch-mode verify` no Windows ou `./mvnw --batch-mode verify` em macOS/Linux. Para o frontend, use `npm ci`, `npm test -- --no-watch --no-progress` e `npm run build` dentro de `frontend/`. O shell tem um teste estrutural; regras importantes seguirão TDD. Testes de integração com PostgreSQL, RabbitMQ ou Keycloak serão adicionados quando os critérios exigirem comprovar essas integrações.
 
 ## Aprendizado e uso de IA
 
@@ -100,7 +104,7 @@ O [registro de aprendizado](docs/learning/LEARNING_LOG.md) separa conceitos apre
 
 ## Roadmap e próximos passos
 
-O [roadmap](docs/architecture/development-roadmap.md) organiza o trabalho em entregas incrementais e preserva a revisão humana entre fases. O próximo trabalho de implementação só começa mediante solicitação do proprietário.
+O [roadmap](docs/architecture/development-roadmap.md) organiza o trabalho em entregas incrementais e preserva a revisão humana entre fases. A entrega 1.5 é a próxima após a validação humana desta entrega.
 
 Pendências reais para fases futuras:
 
